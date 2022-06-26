@@ -11,6 +11,7 @@ class Welcome extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->library('session');
+		$this->load->helper('string');
 	}
 	public function index()
 	{
@@ -18,7 +19,11 @@ class Welcome extends CI_Controller {
 		// echo '<pre>';print_r($data['product']);die;
 		// $data['products'] = $this->Model_common->getAllData('product');
 		// $data['product_images'] = $this->Model_common->getAllData('product_images');
-		$this->load->view('product_showcase', $data);
+		// $this->load->view('product_showcase', $data);
+		// echo function_to_tital(__FUNCTION__);die;
+		$data['page_tital'] = (__FUNCTION__ === 'index' ? 'Home Page' : function_to_tital(__FUNCTION__));
+		$data['html_file'] = 'product_showcase';
+        $this->load->view('template', $data);
 	}
 
 	public function add_new_product_form_data()
@@ -205,6 +210,7 @@ class Welcome extends CI_Controller {
 
 	public function db()
 	{
+		// echo '<pre>'; print_r(get_class_methods('Welcome'));die;
 		$this->db->query("CREATE TABLE IF NOT EXISTS product_images(
 			id int(5) not null auto_increment primary key,
 			product_id int(5) not null,
@@ -220,4 +226,29 @@ class Welcome extends CI_Controller {
 		)");
 
 	}
+
+	public function checkApiData()
+	{
+		$arrayData = array(
+			'id'=> $_GET['id'],
+		);
+		
+		$data_string = json_encode($arrayData);
+            $ch = curl_init('http://localhost/product_showcase_project/item/my_index?');
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt(
+                $ch,
+                CURLOPT_HTTPHEADER,
+                array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($data_string)
+                )
+            );
+            curl_exec($ch);
+            curl_close($ch);
+		$result = 'http://localhost/product_showcase_project/item/my_index?id=3';
+	}
+
 }
